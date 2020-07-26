@@ -65,8 +65,9 @@ def direct_gradient_descent():
 
 class NodeFunction(object):
 
-    def __init__(self, name):
+    def __init__(self, name, n_inputs):
         self.name = name
+        self.n_inputs = n_inputs
         self.children = []
         self.is_complete = False
         self.direct_params = set()
@@ -109,8 +110,9 @@ class NodeFunction(object):
         # value
         pass
 
-    def derivative(self, xi):
-        # jacobian value
+    def derivative(self, xi, input_index):
+        # jacobian value at xi wrt input specified
+        # by input index
         pass
 
     def param_derivative(self, xi):
@@ -152,13 +154,13 @@ class NodeFunction(object):
             ksi_store[self.name] = ksi
         beta += ksi
         #print(f'ksi for node [{self.name}]: {ksi}')
-        for child in self.children:
+        for input_index, child in enumerate(self.children):
             if param in child.all_params():
                 # cache lookup
                 if child.name in k_store:
                     k = k_store[child.name]
                 else:
-                    k = self.derivative(xi) # should generalize to child specific partial jac.
+                    k = self.derivative(xi, input_index)
                     k_store[child.name] = k
                 #print(f'k[{self.name}][{child.name}]: {k}')
                 beta_c = child._compute_beta(param, forward_store,
@@ -183,14 +185,14 @@ class NodeFunction(object):
 class Add(NodeFunction):
 
     def __init__(self, name, param):
-        super().__init__(name)
+        super().__init__(name, n_inputs=1)
         self.param = param
         self.direct_params.add(param)
 
     def evaluate(self, xi):
         return xi + self.param.value
 
-    def derivative(self, xi):
+    def derivative(self, xi, input_index):
         return 1.
 
     def param_derivative(self, xi):
@@ -200,14 +202,14 @@ class Add(NodeFunction):
 class Mult(NodeFunction):
 
     def __init__(self, name, param):
-        super().__init__(name)
+        super().__init__(name, n_inputs=1)
         self.param = param
         self.direct_params.add(param)
 
     def evaluate(self, xi):
         return xi * self.param.value
 
-    def derivative(self, xi):
+    def derivative(self, xi, input_index):
         return self.param.value
 
     def param_derivative(self, xi):
