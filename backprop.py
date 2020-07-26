@@ -9,8 +9,12 @@
     Suppose a single input x in R. Suppose the functional to be
     optimized is F[a] = xa^2 + a
 
+    F'[a] = 2xa + 1
+
     2xa + 1 = 0
         => a = -1 / (2x) at minimum
+
+    Hence for x = 4, algorithm should converge to a = - 1 / 8. = -0.125
 
 
 Function composition graph. Assume elementary operations:
@@ -90,10 +94,16 @@ class NodeFunction(object):
         return self.direct_params.union(self.indirect_params)
 
     def _register(self):
+        all_names = set()
         for i, child in enumerate(self.children):
-            child._register()
+            c_all_names = child._register()
+            if not all_names.isdisjoint(c_all_names):
+                print('error: duplicate node names. exiting')
+                sys.exit(0)
+            all_names = all_names.union(c_all_names)
             print(f'registered: child [{child.name}] of [{self.name}] at index {i}.')
         self.is_complete = True
+        return all_names
 
     def evaluate(self, xi):
         # value
@@ -130,25 +140,44 @@ class NodeFunction(object):
             forward_store[self.name] = xi
             return [self.evaluate(xc) for xc in xi]
 
-    def _compute_beta(self, param, forward_store):
+    def _compute_beta(self, param, forward_store, ksi_store,
+                      k_store):
         beta = 0.
         xi = forward_store[self.name]
-        ksi = self.param_derivative(xi)
+        # cache lookup
+        if self.name in ksi_store:
+            ksi = ksi_store[self.name]
+        else:
+            ksi = self.param_derivative(xi)
+            ksi_store[self.name] = ksi
         beta += ksi
+        #print(f'ksi for node [{self.name}]: {ksi}')
         for child in self.children:
             if param in child.all_params():
-                k = child.derivative(xi)
-                beta_c = child._compute_beta(param, forward_store)
+                # cache lookup
+                if child.name in k_store:
+                    k = k_store[child.name]
+                else:
+                    k = self.derivative(xi) # should generalize to child specific partial jac.
+                    k_store[child.name] = k
+                #print(f'k[{self.name}][{child.name}]: {k}')
+                beta_c = child._compute_beta(param, forward_store,
+                                             ksi_store, k_store)
                 beta += k * beta_c
+        #print(f'beta for node [{self.name}]: {beta}')
         return beta
 
     def backward_prop(self, param, forward_store):
-        print(f"running backprop from root node [{self.name}] on param '{param.name}' ... ")
+        #print(f"running backprop from root node [{self.name}] on param '{param.name}' ... ")
         if not self.is_complete:
             print('error: graph not complete. exiting')
             sys.exit(0)
-        print('finished backprop.')
-        return self._compute_beta(param, forward_store)
+        #print('finished backprop.')
+        ksi_store = {}
+        k_store = {}
+        return self._compute_beta(param, forward_store,
+                                  ksi_store,
+                                  k_store)
 
 
 class Add(NodeFunction):
@@ -191,6 +220,9 @@ class Param(object):
         self.name = name
         self.value = init_value
 
+    def get_value(self):
+        return self.value
+
     def set_value(self, value):
         self.value = value
 
@@ -210,33 +242,45 @@ def sample_graph():
     return params, graph
 
 
-def run_forward_prop(graph, x):
+def run_forwardprop_iter(graph, x):
     forward_store = {}
     graph.forward_prop(x, forward_store)
     return forward_store
 
 
-def run_back_prop(graph, param, forward_store):
+def run_backprop_iter(graph, param, forward_store):
     # run backprop on the given parameter
-    graph.backward_prop(param, forward_store)
+    return graph.backward_prop(param, forward_store)
 
 
-def run_algorithm():
+def run_backprop_algorithm():
 
+    # build graph and initial parameter values
     params, graph = sample_graph()
-    # run forward_prop
-    print('running forward prop ...')
-    x = 4.
-    forward_store = run_forward_prop(graph, x)
-    print('finished forward prop.')
-    print(f'cached evaluation points from forward prop: {forward_store}')
+    # learning rate
+    eta = 1e-3
+    # number of iterations
+    n_iter = 10**4
+    for i in range(n_iter):
+        run_iteration(i, params, graph)
 
-    # run backward prop
-    # to do
+    a = params[0].value
+    assert abs(a - (-1 / 8.)) < 10e-4, "a did not converge to -1 / 8."
+
+
+def run_iteration(i, params, graph):
+    # run forward_prop iteration
+    x = 4.
+    forward_store = run_forwardprop_iter(graph, x)
+    # run backward prop iteration
+    eta = 1e-3
     for param in params:
-        run_back_prop(graph, param, forward_store)
+        del_p = run_backprop_iter(graph, param, forward_store)
+        param.set_value(param.get_value() - eta * del_p)
+        if i % 1000 == 0:
+            print(f"updated params: '{param.name}': {param.value}")
 
 
 if __name__ == "__main__":
     # direct_gradient_descent()
-    run_algorithm()
+    run_backprop_algorithm()
