@@ -20,12 +20,32 @@
 Function composition graph. Assume elementary operations:
 Add, Mult.
 
-    F[a] = Add_a ( Mult_a^2 (x) ))
+    F[a] = add_a ( mult_a ( mult_a( (x))) ))
 
 
 So graph is:
 
- x ->  Mult_a^2 - Add_a
+
+  add_a
+    |
+ mult_a
+    |
+ mult_a
+    |
+ (input x)
+
+
+The terms are
+
+add_a
+-----
+ksi = 1
+K_[this][child] = 1
+
+mult_a
+------
+ksi = x
+K_[this][child] = a
 
 """
 import sys
