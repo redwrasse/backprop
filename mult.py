@@ -14,5 +14,5 @@ class Mult(NodeFunction):
     def derivative(self, xi, input_index):
         return self.param.value
 
-    def param_derivative(self, xi):
+    def param_derivative(self, xi, param):
         return xi

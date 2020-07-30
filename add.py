@@ -14,5 +14,5 @@ class Add(NodeFunction):
     def derivative(self, xi, input_index):
         return 1.
 
-    def param_derivative(self, xi):
+    def param_derivative(self, xi, param):
         return 1.

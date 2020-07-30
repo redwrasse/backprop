@@ -53,7 +53,7 @@ class NodeFunction(object):
         # by input index
         pass
 
-    def param_derivative(self, xi):
+    def param_derivative(self, xi, param):
         # direct param derivative
         pass
 
@@ -88,7 +88,7 @@ class NodeFunction(object):
         if self.name in ksi_store:
             ksi = ksi_store[self.name]
         else:
-            ksi = self.param_derivative(xi)
+            ksi = self.param_derivative(xi, param)
             ksi_store[self.name] = ksi
         beta += ksi
         #print(f'ksi for node [{self.name}]: {ksi}')
