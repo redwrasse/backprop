@@ -9,14 +9,13 @@
 """
 
 
-def run_backprop_algorithm(params, graph, n_iter, eta):
+def run_backprop_algorithm(params, graph, x, n_iter, eta):
     for i in range(n_iter):
-        run_iteration(i, params, graph, eta)
+        run_iteration(i, params, graph, x, eta)
 
 
-def run_iteration(i, params, graph, eta):
+def run_iteration(i, params, graph, x, eta):
     # run forward_prop iteration
-    x = 4.
     forward_store = run_forwardprop_iter(graph, x)
     # run backward prop iteration
     for param in params:
