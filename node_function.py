@@ -68,9 +68,12 @@ class NodeFunction(object):
         if not self.is_complete:
             print('error: graph not complete. exiting')
             sys.exit(0)
-        if not self.children:
-            forward_store[self.name] = leaf_x
+        # todo: need to handle case of multiple child nodes/inputs, possibly mixed
+        if self.n_child_nodes == 1 and not self.children:
+            forward_store[self.name] = leaf_x  # cache the input to this node
             return self.evaluate(leaf_x)
+        elif self.n_child_nodes > 1:
+            pass # to do, and other cases .....
         else:
             xi = []
             for child in self.children:
@@ -80,7 +83,8 @@ class NodeFunction(object):
                 forward_store[self.name] = xi[0]
                 return self.evaluate(xi[0])
             forward_store[self.name] = xi
-            return [self.evaluate(xc) for xc in xi]
+            return self.evaluate(xi)
+            #self.evaluate(xc) for xc in xi]
 
     def _compute_beta(self, param, forward_store, ksi_store,
                       k_store):
@@ -108,6 +112,7 @@ class NodeFunction(object):
                 #print(f'k[{self.name}][{child.name}]: {k}')
                 beta_c = child._compute_beta(param, forward_store,
                                              ksi_store, k_store)
+                # matrix product between k and beta since each node multidimensional
                 for m in range(len(beta)):
                     for n in range(len(beta[m])):
                         mm = 0.

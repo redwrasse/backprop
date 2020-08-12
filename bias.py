@@ -1,23 +1,25 @@
 from node_function import NodeFunction
 
 
-class Add(NodeFunction):
-    """ vectorized addition with a scalar parameter on a batch
-      of inputs
+class Bias(NodeFunction):
+    """
+    x_i |-> b_i + x_i, b_i a trainable vector
+    """
 
-      x_i |-> a + x_i
-      """
-    def __init__(self, name, param):
+    def __init__(self, name, biases):
         super().__init__(name, n_child_nodes=1)
-        self.param = param
-        self.direct_params.add(param)
+        self.biases = biases
+        self.biases_index = {}
+        for i, bias in enumerate(self.biases):
+            self.direct_params.add(bias)
+            self.biases_index[id(bias)] = i
 
     def evaluate(self, xi):
         output = []
         for row in xi:
             out_row = []
-            for e in row:
-                out_row.append(e + self.param.value)
+            for j, e in enumerate(row):
+                out_row.append(e + self.biases[j].value)
             output.append(out_row)
         return output
 
@@ -34,5 +36,8 @@ class Add(NodeFunction):
     def param_derivative(self, xi, param):
         N = len(xi)
         m = len(xi[0])
-        return [[1.] * m] * N
-
+        p_deriv = [[0.] * m] * N
+        k = self.biases_index[id(param)]
+        for i in range(N):
+            p_deriv[i][k] = 1.
+        return p_deriv
