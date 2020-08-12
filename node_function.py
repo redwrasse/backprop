@@ -82,7 +82,7 @@ class NodeFunction(object):
 
     def _compute_beta(self, param, forward_store, ksi_store,
                       k_store):
-        beta = 0.
+        beta = [[0.]]
         xi = forward_store[self.name]
         # cache lookup
         if self.name in ksi_store:
@@ -90,7 +90,10 @@ class NodeFunction(object):
         else:
             ksi = self.param_derivative(xi, param)
             ksi_store[self.name] = ksi
-        beta += ksi
+        for i in range(len(ksi)):
+            for j in range(len(ksi[i])):
+                beta[i][j] += ksi[i][j]
+        #beta += ksi
         #print(f'ksi for node [{self.name}]: {ksi}')
         for input_index, child in enumerate(self.children):
             if param in child.all_params():
@@ -103,7 +106,10 @@ class NodeFunction(object):
                 #print(f'k[{self.name}][{child.name}]: {k}')
                 beta_c = child._compute_beta(param, forward_store,
                                              ksi_store, k_store)
-                beta += k * beta_c
+                for i in range(len(beta_c)):
+                    for j in range(len(beta_c[i])):
+                        beta[i][j] += k[i][j] * beta_c[i][j]
+                #beta += k * beta_c
         #print(f'beta for node [{self.name}]: {beta}')
         return beta
 
@@ -115,6 +121,9 @@ class NodeFunction(object):
         #print('finished backprop.')
         ksi_store = {}
         k_store = {}
-        return self._compute_beta(param, forward_store,
+        bprop_out = self._compute_beta(param, forward_store,
                                   ksi_store,
                                   k_store)
+        assert len(bprop_out) == 1, "backpropagation output not a scalar"
+        assert len(bprop_out[0]) == 1, "backpropagation output not a scalar"
+        return bprop_out[0][0]

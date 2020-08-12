@@ -67,6 +67,7 @@ updated params: 'a': -0.12499999999999914
 
 
 from add import Add
+from average import Average
 from backprop import run_backprop_algorithm
 from mult import Mult
 from param import Param
@@ -77,19 +78,21 @@ def sample_graph():
     params = []
     a = Param('a', 1.)
     params.append(a)
-    add = Add('addition node', a)
-    mult = Mult('multiplication node 1', a)
-    mult2 = Mult('multiplication node 2', a)
+    avg = Average('average node', n_inputs=1)
+    add = Add('addition node', a, n_inputs=1)
+    mult = Mult('multiplication node 1', a, n_inputs=1)
+    mult2 = Mult('multiplication node 2', a, n_inputs=1)
     mult.add_child(mult2)
     add.add_child(mult)
-    graph = add
+    avg.add_child(add)
+    graph = avg
     graph.set_complete()
     return params, graph
 
 
 def run_example1():
     params, graph = sample_graph()
-    x = 4.
+    x = [[4.]]
     run_backprop_algorithm(params, graph, x,
                            n_iter=10**4,
                            eta=1e-3)
