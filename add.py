@@ -8,7 +8,7 @@ class Add(NodeFunction):
       x_ij |-> a + x_ij
       """
     def __init__(self, name, param):
-        super().__init__(name, n_inputs=1)
+        super().__init__(name, n_child_nodes=1)
         self.param = param
         self.direct_params.add(param)
 
@@ -21,7 +21,7 @@ class Add(NodeFunction):
             output.append(out_row)
         return output
 
-    def derivative(self, xi, input_index):
+    def derivative(self, xi, child_index):
         # identity matrix for each row
         N = len(xi)
         m = len(xi[0])

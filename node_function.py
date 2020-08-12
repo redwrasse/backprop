@@ -3,9 +3,11 @@ import sys
 
 class NodeFunction(object):
 
-    def __init__(self, name, n_inputs):
+    # todo: accommodate real support for multiple child nodes
+
+    def __init__(self, name, n_child_nodes):
         self.name = name
-        self.n_inputs = n_inputs
+        self.n_child_nodes = n_child_nodes
         self.children = []
         self.is_complete = False
         self.direct_params = set()
@@ -48,9 +50,9 @@ class NodeFunction(object):
         # value
         pass
 
-    def derivative(self, xi, input_index):
-        # jacobian value at xi wrt input specified
-        # by input index
+    def derivative(self, xi, child_index):
+        # jacobian value at xi wrt child node specified
+        # by child_index
         pass
 
     def param_derivative(self, xi, param):
@@ -95,13 +97,13 @@ class NodeFunction(object):
                 beta[m][n] += ksi[m][n]
         #beta += ksi
         #print(f'ksi for node [{self.name}]: {ksi}')
-        for input_index, child in enumerate(self.children):
+        for child_index, child in enumerate(self.children):
             if param in child.all_params():
                 # cache lookup
                 if child.name in k_store:
                     k = k_store[child.name]
                 else:
-                    k = self.derivative(xi, input_index)
+                    k = self.derivative(xi, child_index)
                     k_store[child.name] = k
                 #print(f'k[{self.name}][{child.name}]: {k}')
                 beta_c = child._compute_beta(param, forward_store,

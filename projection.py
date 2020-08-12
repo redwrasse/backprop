@@ -7,9 +7,8 @@ class Projection(NodeFunction):
     x |-> <x, w>
     """
 
-    def __init__(self, name, n_inputs, weights):
-        super().__init__(name, n_inputs=n_inputs)
-        assert len(n_inputs) == len(weights)
+    def __init__(self, name, weights):
+        super().__init__(name, n_child_nodes=1)
         self.weights = weights
         self.weights_index = {}
         for i, weight in enumerate(weights):
@@ -17,13 +16,27 @@ class Projection(NodeFunction):
             self.weights_index[id(weight)] = i
 
     def evaluate(self, xi):
-        outputs = []
-        for i in range(len(xi)):
-            outputs.append(sum(xi[i][k] * self.weights[k].value for k in range(self.n_inputs)))
+        output = []
+        for row in xi:
+            proj_sum = 0.
+            for j, e in enumerate(row):
+                proj_sum += e * self.weights[j].value
+            out_row = [proj_sum]
+            output.append(out_row)
+        return output
 
-    def derivative(self, xi, input_index):
-        return self.weights[input_index].value
+    def derivative(self, xi, child_index):
+        N = len(xi)
+        m = len(xi[0])
+        out_mat = [[[0] * m] * 1] * N
+        for i in range(N):
+            for j in range(m):
+                out_mat[i][0][j] = self.weights_index[j]
+        return out_mat
 
     def param_derivative(self, xi, param):
         k = self.weights_index[id(param)]
-        return xi[k]
+        p_deriv = []
+        for row in xi:
+            p_deriv.append([row[k]])
+        return p_deriv
