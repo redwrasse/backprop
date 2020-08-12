@@ -24,8 +24,6 @@ from subtract import Subtract
 from normsquare import NormSquare
 from bias import Bias
 from projection import Projection
-from constantmult import ConstMult
-from average import Average
 from backprop import run_backprop_algorithm
 
 
@@ -47,13 +45,11 @@ def build_graph():
     sub = Subtract("subtract node")
     normsq = NormSquare("norm square node")
     bia = Bias("bias node", biases)
-    cmult = ConstMult("1/N const mult", 1. / N)
-    cmult.add_child(normsq)
     normsq.add_child(sub)
     sub.add_child(bia) # how to add input y as child / second input?
     bia.add_child(proj)
 
-    graph = cmult
+    graph = normsq
     graph.set_complete()
     return params, graph
 
@@ -73,16 +69,14 @@ def train():
     y = []
 
     for i in range(N):
-        output_row = []
+        out_val = 0.
         for j in range(input_dim):
-            output_row.append(A[j] * x[i][j] + b[j])
-        y.append(output_row)
+            out_val += A[j] * x[i][j] + b[j]
+        y.append([out_val])
 
     run_backprop_algorithm(params, graph, [x, y],
                            n_iter=10**4,
                            eta=1e-3)
-
-
 
 
 if __name__ == "__main__":
