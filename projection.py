@@ -17,7 +17,9 @@ class Projection(NodeFunction):
             self.weights_index[id(weight)] = i
 
     def evaluate(self, xi):
-        return sum(xi[k] * self.weights[k].value for k in range(self.n_inputs))
+        outputs = []
+        for i in range(len(xi)):
+            outputs.append(sum(xi[i][k] * self.weights[k].value for k in range(self.n_inputs)))
 
     def derivative(self, xi, input_index):
         return self.weights[input_index].value

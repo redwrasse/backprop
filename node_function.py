@@ -90,9 +90,9 @@ class NodeFunction(object):
         else:
             ksi = self.param_derivative(xi, param)
             ksi_store[self.name] = ksi
-        for i in range(len(ksi)):
-            for j in range(len(ksi[i])):
-                beta[i][j] += ksi[i][j]
+        for m in range(len(ksi)):
+            for n in range(len(ksi[m])):
+                beta[m][n] += ksi[m][n]
         #beta += ksi
         #print(f'ksi for node [{self.name}]: {ksi}')
         for input_index, child in enumerate(self.children):
@@ -106,9 +106,13 @@ class NodeFunction(object):
                 #print(f'k[{self.name}][{child.name}]: {k}')
                 beta_c = child._compute_beta(param, forward_store,
                                              ksi_store, k_store)
-                for i in range(len(beta_c)):
-                    for j in range(len(beta_c[i])):
-                        beta[i][j] += k[i][j] * beta_c[i][j]
+                for m in range(len(beta)):
+                    for n in range(len(beta[m])):
+                        mm = 0.
+                        for l in range(len(beta_c[m])):
+                            mm += k[m][n][l] * beta_c[m][l]
+                        beta[m][n] += mm
+
                 #beta += k * beta_c
         #print(f'beta for node [{self.name}]: {beta}')
         return beta
