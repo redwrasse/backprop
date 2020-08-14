@@ -1,5 +1,5 @@
 # backprop
-a failed attempt at a general backpropagation library.
+a failed attempt at a general backpropagation library, operating on arbitrary node functions.
 
 Lesson: Lack of static types makes Python a poor choice.
 Nodes are general maps `R^n -> R^m`, they tend to operate on batches, with some performing reductions over batches, and nodes can have multiple child nodes. This complexity needs static types.
