@@ -1,6 +1,15 @@
 # algorithms.py
 """
- algorithms following chapter 6 of bengio book
+algorithms 61 and 62 following chapter 6 of bengio book
+
+a reverse adjacency list representation of nodes presumed
+to satisfy ordering of v_0, .... v_n-1 as input nodes (leaves)
+of graph, and all v_j in Parent(v_i) => j < i,
+aka all inputs are lesser-indexed.
+
+implements algorithms 61 and 62: forward and backprop on this representation.
+
+
 """
 
 
@@ -46,6 +55,7 @@ def alg61(cgraph, x):
 
 def alg62(cgraph, x):
     """ back-propagation
+    grad_table is list of del root / del node
     """
     alg61(cgraph, x)  # forward prop., setting vals at nodes.
     n = len(cgraph.nodes)
@@ -65,6 +75,26 @@ def alg62(cgraph, x):
                 grad_table_j += grad_table[i] * cgraph.nodes[i].partial_derivative(pd_ix, parent_vals)
         grad_table[j] = grad_table_j
     return grad_table
+
+
+def run_backprop_algorithm(cgraph, x, param_indices,
+                           learning_rate=1e-3,
+                           n_iterations=10**5,
+                           print_freq=10**4):
+    """ Run the backpropagation algorithm: alternatively call
+    alg61 and alg62.
+    Optimize the subset of leaf values identified as parameters by
+    the param_indices list.
+    """
+    for i in range(n_iterations):
+        alg61(cgraph, x)
+        grad_table = alg62(cgraph, x)
+        for ix in param_indices:
+            param_update = -learning_rate * grad_table[ix]
+            x[ix] += param_update
+        if i % print_freq == 0:
+            print(f'param values: {[x[_] for _ in param_indices]}')
+            print(f'loss: {cgraph.nodes[-1].val}')
 
 
 def test():
@@ -91,6 +121,9 @@ def test():
 
     grad_table = alg62(cgraph, x)
     print(f"grad table: {grad_table}")
+
+    # minimizes f(a,b,c) = a + b + c
+    run_backprop_algorithm(cgraph, x, param_indices=[0, 1, 2])
 
 
 test()
