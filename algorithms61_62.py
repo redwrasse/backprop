@@ -1,4 +1,4 @@
-# algorithms6162.py
+# algorithms61_62.py
 """
 algorithms 61 and 62 following chapter 6 of bengio book
 
@@ -105,25 +105,48 @@ def test():
      /\   \
     0  1  2
     """
-    def f(arr): return sum(arr)
-    def pd(arr): return [1, 1]
-    n = 6
-    x = [0.5, 0.1, 0.3]
     reverse_adj = {
-        5: [3, 4],
-        3: [0, 1],
-        4: [2]
-    }
-    nodes = [SimpleNode(f, pd, None) for _ in range(n)]
-    cgraph = SimpleCGraph(reverse_adj, nodes)
-    root_val = alg61(cgraph, x)
-    print(f"root node value: {root_val}")
+            5: [3, 4],
+            3: [0, 1],
+            4: [2]
+        }
 
-    grad_table = alg62(cgraph, x)
-    print(f"grad table: {grad_table}")
+    def cgraph1():
+        """
+        computational graph f(a,b,c) = a + b + c
+        """
+        def f(arr): return sum(arr)
+        def pd(arr): return [1] * len(arr)
+        n = 6
+        nodes = [SimpleNode(f, pd, None) for _ in range(n)]
+        cgraph = SimpleCGraph(reverse_adj, nodes)
+        return cgraph
 
+    def cgraph2():
+        def f(arr): return (arr[0] - sum(arr[1:]))**2
+        def pd(arr):
+            return [2 * (arr[0] - sum(arr[1:]))] + \
+                   [-2*(arr[0] - sum(arr[1:]))] * (len(arr) - 1)
+        n = 6
+        nodes = [SimpleNode(f, pd, None) for _ in range(n)]
+        cgraph = SimpleCGraph(reverse_adj, nodes)
+        return cgraph
+
+    print("example 1: min f(a,b,c) = a + b + c")
+    x = [0.5, 0.1, 0.3]
+    cg1 = cgraph1()
+    # root_val = alg61(cg1, x)
+    # print(f"root node value: {root_val}")
+    # grad_table = alg62(cg1, x)
+    # print(f"grad table: {grad_table}")
     # minimizes f(a,b,c) = a + b + c
-    run_backprop_algorithm(cgraph, x, param_indices=[0, 1, 2])
+    run_backprop_algorithm(cg1, x, param_indices=[0, 1, 2])
+    print("----------------")
+    print("example 2: min f(a, b) = ((a-b)^2 - c^2)^2")
+    cg2 = cgraph2()
+    x = [0.5, 0.1, 0.3]
+    # minimizes f(a, b) = ((a-b)^2 - c^2)^2
+    run_backprop_algorithm(cg2, x, param_indices=[0, 1])
 
 
 test()
