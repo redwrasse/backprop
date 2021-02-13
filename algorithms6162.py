@@ -1,4 +1,4 @@
-# algorithms.py
+# algorithms6162.py
 """
 algorithms 61 and 62 following chapter 6 of bengio book
 
