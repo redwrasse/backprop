@@ -123,6 +123,9 @@ def test():
         return cgraph
 
     def cgraph2():
+        """
+        computational graph of f(a, b) = ((a-b)^2 - c^2)^2
+        """
         def f(arr): return (arr[0] - sum(arr[1:]))**2
         def pd(arr):
             return [2 * (arr[0] - sum(arr[1:]))] + \
