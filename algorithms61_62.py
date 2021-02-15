@@ -9,7 +9,6 @@ aka all inputs are lesser-indexed.
 
 implements algorithms 61 and 62: forward and backprop on this representation.
 
-
 """
 
 
@@ -113,6 +112,26 @@ def sample_graph_structure():
     return reverse_adj
 
 
+def mlp_graph_structure():
+    """
+    fully connected mlp graph structure
+    half the parents of any node the corresponding
+    weight parameters,
+    the other half the previous layer outputs.
+
+    k layers each connecting n nodes to n nodes,
+    plus final layer is 1 node only (alg61 and 62 as
+    currently implemented support 1d root only)
+
+    nodes 0, ... , n-1 first layer
+          n, ...., 2n - 1 second layer, etc.
+
+          n(k-1), ..., nk - 1 second to last layer
+          nk root node for last layer
+    """
+    pass
+
+
 def example1():
 
     reverse_adj = sample_graph_structure()
@@ -158,6 +177,10 @@ def example2():
     # minimizes f(a, b) = ((a-b)^2 - c^2)^2
     print("example 2: min f(a, b) = ((a-b)^2 - c^2)^2")
     run_backprop_algorithm(cg2, x, param_indices=[0, 1])
+
+
+def example3():
+    pass
 
 
 if __name__ == "__main__":
