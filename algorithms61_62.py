@@ -97,19 +97,25 @@ def run_backprop_algorithm(cgraph, x, param_indices,
             print(f'loss: {cgraph.nodes[-1].val}')
 
 
-def test():
+def sample_graph_structure():
     """
-         5
-        /\
-       3  4
-     /\   \
-    0  1  2
-    """
+            5
+           /\
+          3  4
+        /\   \
+       0  1  2
+       """
     reverse_adj = {
-            5: [3, 4],
-            3: [0, 1],
-            4: [2]
-        }
+        5: [3, 4],
+        3: [0, 1],
+        4: [2]
+    }
+    return reverse_adj
+
+
+def example1():
+
+    reverse_adj = sample_graph_structure()
 
     def cgraph1():
         """
@@ -122,34 +128,39 @@ def test():
         cgraph = SimpleCGraph(reverse_adj, nodes)
         return cgraph
 
+    cg1 = cgraph1()
+    x = [0.5, 0.1, 0.3]
+    print("example 1: min f(a,b,c) = a + b + c")
+    run_backprop_algorithm(cg1, x, param_indices=[0, 1, 2])
+
+
+def example2():
+    reverse_adj = sample_graph_structure()
+
     def cgraph2():
         """
         computational graph of f(a, b) = ((a-b)^2 - c^2)^2
         """
-        def f(arr): return (arr[0] - sum(arr[1:]))**2
+
+        def f(arr): return (arr[0] - sum(arr[1:])) ** 2
+
         def pd(arr):
             return [2 * (arr[0] - sum(arr[1:]))] + \
-                   [-2*(arr[0] - sum(arr[1:]))] * (len(arr) - 1)
+                   [-2 * (arr[0] - sum(arr[1:]))] * (len(arr) - 1)
+
         n = 6
         nodes = [SimpleNode(f, pd, None) for _ in range(n)]
         cgraph = SimpleCGraph(reverse_adj, nodes)
         return cgraph
 
-    print("example 1: min f(a,b,c) = a + b + c")
-    x = [0.5, 0.1, 0.3]
-    cg1 = cgraph1()
-    # root_val = alg61(cg1, x)
-    # print(f"root node value: {root_val}")
-    # grad_table = alg62(cg1, x)
-    # print(f"grad table: {grad_table}")
-    # minimizes f(a,b,c) = a + b + c
-    run_backprop_algorithm(cg1, x, param_indices=[0, 1, 2])
-    print("----------------")
-    print("example 2: min f(a, b) = ((a-b)^2 - c^2)^2")
     cg2 = cgraph2()
     x = [0.5, 0.1, 0.3]
     # minimizes f(a, b) = ((a-b)^2 - c^2)^2
+    print("example 2: min f(a, b) = ((a-b)^2 - c^2)^2")
     run_backprop_algorithm(cg2, x, param_indices=[0, 1])
 
 
-test()
+if __name__ == "__main__":
+    example1()
+    print("----------")
+    example2()
