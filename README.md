@@ -8,9 +8,9 @@ A collection of backpropagation algorithm implementations loosely following Deep
 to satisfy ordering of `v_0, .... v_n-1` as input nodes (leaves)
 of graph, and all `v_j in Parent(v_i) => j < i`,
 aka all inputs are lesser-indexed. Implements algorithms 61 and 62 following chapter 6 of the Deep Learning Bengio book. 
-	*	Example minimizing (non-convex) `f(a,b,c) = a + b + c` with binary add elementary nodes `g(a,b) = a + b`.
+	*	Example minimizing (non-convex) `f(a,b,c) = a + b + c` with elementary addition nodes `g(a1, a2,..) = a1 + a2 + ...`.
 
-	* Example minimizing `f(a, b) = ((a-b)^2 - c^2)^2` with binary square difference nodes `g(a,b) = (a-b)^2`.
+	* Example minimizing `f(a, b) = ((a-b)^2 - c^2)^2` with elementary square difference nodes `g(a1, a2, a3, ...) = (a1 - a2 - a3 - ... )^2`.
 
 
 
