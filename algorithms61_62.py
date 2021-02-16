@@ -217,8 +217,46 @@ def example2():
 
 
 def example3():
+    """
+    mlp
+    """
     n, k = 4, 2
-    print(mlp_graph_structure(n, k))
+    reverse_adj = mlp_graph_structure(n, k)
+
+    import random
+
+    def cgraph3():
+
+        def f(arr):
+            # = <w, x>
+            dotp = 0.
+            m = int(len(arr)/2)
+            for i in range(m):
+                dotp += arr[i] * arr[i + m]
+            return dotp
+
+        def pd(arr):
+            # y = <w,x>
+            # del y del ni = x_i for first half, w_i for second half
+            m = int(len(arr)/2)
+            return arr[m:] + arr[:m]
+
+        nodes = [SimpleNode(f, pd, None) for _ in range(n*k + 1)]
+        cgraph = SimpleCGraph(reverse_adj, nodes)
+        return cgraph
+
+    cgraph_mlp = cgraph3()
+    # all input values plus initial parameter values- aka all leaf values
+    # k layers each n / 2 leaf weights,
+    # first layer nas n total leaves because of additional n/2 inputs
+    # => (k-1) * n / 2 + n total # of leaves
+    x_inputs = [random.normalvariate(0., 1.) for _ in range(int(n/1))]
+    x = [random.random() for _ in range(int((k-1) * n/2 + n))]
+    # param_indices to train are weights only:
+    # nodes nl, ..., n(l + 1/2) - 1 for l = 0,...., k-1
+    param_indices = [e for l in range(k) for
+                     e in list(range(n*l, int(n*(l + 0.5))))]
+    run_backprop_algorithm(cgraph_mlp, x, param_indices=param_indices)
 
 
 if __name__ == "__main__":
