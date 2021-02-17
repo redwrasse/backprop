@@ -13,5 +13,5 @@ aka all inputs are lesser-indexed. Implements algorithms 61 and 62 following cha
 	* Example minimizing `f(a, b) = ((a-b)^2 - c^2)^2` with elementary square difference nodes `g(a1, a2, a3, ...) = (a1 - a2 - a3 - ... )^2`.
 
 
-	* Mlp network, minimizing a fully-connected k-layer network `f(x)` as `(y - f(x))^2` for each data point, weight dot products as elementary nodes
+	* Mlp network, minimizing a fully-connected k-layer network `f: R^n -> R` as `(y - f(x))^2` for each data point, weight dot products as elementary nodes
 	  `g(w, x) = <w, x>` and a final square difference node `h(y, f(x)) = (y - f(x))^2`.
