@@ -10,6 +10,7 @@ aka all inputs are lesser-indexed.
 implements algorithms 61 and 62: forward and backprop on this representation.
 
 """
+import random
 
 
 class SimpleCGraph:
@@ -102,8 +103,6 @@ def run_backprop_algorithm_batches(cgraph, xb, x, param_indices,
                                    learning_rate=1e-3,
                                    n_iterations=10**5,
                                    print_freq=10**2):
-
-    import random
 
     ns = len(xb)
     for i in range(n_iterations):
@@ -269,8 +268,6 @@ def mlp_example():
     """
     n, k = 6, 2
     reverse_adj = mlp_graph_structure(n, k)
-
-    import random
 
     def cgraph3():
 
